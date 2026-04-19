@@ -9,7 +9,7 @@ dotenv.config();
 function loadConfig() {
   const botToken = process.env.BOT_TOKEN ? process.env.BOT_TOKEN.trim() : '';
   const deliveryMode = process.env.DELIVERY_MODE ? process.env.DELIVERY_MODE.trim().toUpperCase() : '';
-  const managersGroupId = process.env.MANAGERS_GROUP_ID ? process.env.MANAGERS_GROUP_ID.trim() : '';
+  const managersGroupId = normalizeChatId(process.env.MANAGERS_GROUP_ID);
   const managerIds = parseManagerIds(process.env.MANAGER_IDS);
   const timeZone = process.env.TIMEZONE ? process.env.TIMEZONE.trim() : 'Europe/Kyiv';
 
@@ -44,8 +44,24 @@ function loadConfig() {
 function parseManagerIds(rawValue = '') {
   return rawValue
     .split(',')
-    .map((value) => value.trim())
+    .map((value) => normalizeChatId(value))
     .filter(Boolean);
+}
+
+function normalizeChatId(rawValue = '') {
+  const value = typeof rawValue === 'string' ? rawValue.trim() : '';
+
+  if (!value) {
+    return '';
+  }
+
+  const unquoted = value.replace(/^['"]|['"]$/g, '');
+
+  if (!/^-?\d+$/.test(unquoted)) {
+    throw new Error(`Invalid Telegram chat id: ${value}`);
+  }
+
+  return unquoted;
 }
 
 function validateTimeZone(timeZone) {

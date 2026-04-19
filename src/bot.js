@@ -11,6 +11,14 @@ const { loadConfig } = require('./utils/config');
 
 async function main() {
   const config = loadConfig();
+  console.log('[Config] Loaded bot configuration', {
+    deliveryMode: config.deliveryMode,
+    managerIdsCount: config.managerIds.length,
+    managersGroupId: config.managersGroupId || null,
+    storageFilePath: config.storageFilePath,
+    timeZone: config.timeZone
+  });
+
   const storage = new JsonStorage(config.storageFilePath, {
     counter: 0,
     roundRobinIndex: 0,
